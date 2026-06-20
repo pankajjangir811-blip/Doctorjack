@@ -1,0 +1,25 @@
+name: Bash checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Bash syntax
+        run: |
+          bash -n Doctorjack_v7_7.sh
+          bash -n Doctorjack_install_v7_7.sh
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: .

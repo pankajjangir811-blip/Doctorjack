@@ -1,38 +1,48 @@
 # Doctorjack v7.7
 
-**SQL injection candidate pre-filter and manual-review planning tool for authorized security assessments.**
+Doctorjack is an authorized-security-testing pre-filtering tool that prepares SQL injection candidates for manual review. It normalizes URLs, extracts parameters, applies SQLi-oriented patterns, checks reflection, compares basic response behavior, and generates review files and an HTML dashboard.
 
-Doctorjack accepts a file containing URLs, normalizes and deduplicates them, extracts parameters, identifies SQLi-looking candidates, enriches them with reflection and basic response-behavior signals, and generates text, TSV, JSON, and HTML review outputs.
+> Use this project only on systems you own or where you have explicit written permission to test.
 
-> [!CAUTION]
-> Use Doctorjack only on systems you own or have explicit written permission to test. A candidate reported by this tool is **not proof of SQL injection**. Follow the approved scope, rate limits, disclosure policy, and applicable law.
+## Repository contents
 
-## What Doctorjack does
+This repository intentionally keeps the original two-script layout:
 
-- prepares malformed, mixed, or whitespace-separated URL input;
-- probes alive URLs using ProjectDiscovery `httpx`;
-- normalizes and deduplicates URLs with `uro`;
-- splits query parameters for focused review;
-- filters SQLi-looking parameters using `gf sqli`;
-- checks reflection using `Gxss`;
-- compares basic response metadata using two inert probe values;
-- ranks parameter candidates for manual review;
-- generates a browser-readable HTML review dashboard;
-- preserves metadata and logs for audit and troubleshooting.
+```text
+Doctorjack_v7_7.sh
+Doctorjack_install_v7_7.sh
+```
 
-Doctorjack does not automatically confirm exploitation and does not run destructive payloads.
+The documentation and GitHub support files do not change the original tool or installer logic.
 
-## Supported environment
+## Supported systems
 
-The installer is intended for Debian-based Linux systems using `apt`, including Kali Linux and Ubuntu. Run it as a normal user with `sudo` access—not from a root login—because Go tools and GF patterns are installed in the current user's home directory.
+The installer is designed for Debian-based Linux distributions that use `apt`, including:
+
+- Kali Linux
+- Ubuntu
+- Debian
+
+Run the installer as a normal user with `sudo` access. Do not run it from a root login unless you understand that Go tools and GF patterns will be installed under the root home directory.
 
 ## Quick installation
+
+Clone the public repository:
 
 ```bash
 git clone https://github.com/pankajjangir811-blip/Doctorjack.git
 cd Doctorjack
-chmod +x install.sh doctorjack uninstall.sh
-./install.sh
+chmod +x Doctorjack_install_v7_7.sh Doctorjack_v7_7.sh
+./Doctorjack_install_v7_7.sh
+```
+
+The password requested during installation is your local Linux `sudo` password, not your GitHub password.
+
+Reload your shell after installation.
+
+For Bash:
+
+```bash
 source ~/.bashrc
 ```
 
@@ -42,213 +52,179 @@ For Zsh:
 source ~/.zshrc
 ```
 
-Verify the installation:
+Verify the global command:
 
 ```bash
 which doctorjack
-which httpx
-httpx -version
 doctorjack -h
 ```
 
-### Important installer behavior
+## Run without installing the global command
 
-The installer:
-
-- installs Go, Python, Git, Curl, Wget, and build packages through `apt`;
-- installs ProjectDiscovery `httpx`, `gf`, `Gxss`, and `qsreplace` using Go;
-- installs `uro` using Python `pip`;
-- downloads public GF pattern repositories;
-- prioritizes `$HOME/go/bin` in your shell profile;
-- removes a conflicting Debian/Python `httpx` CLI when detected;
-- installs the global command at `/usr/local/bin/doctorjack`.
-
-Review `install.sh` before running it, especially on a workstation that already uses the Python `httpx` package or another command named `httpx`.
-
-## Manual use without global installation
-
-After dependencies are available:
+You can also run the main script directly:
 
 ```bash
-chmod +x doctorjack
-./doctorjack -f examples/urls.example.txt
+chmod +x Doctorjack_v7_7.sh
+./Doctorjack_v7_7.sh -f urls.txt
 ```
 
-## Input format
-
-Provide HTTP or HTTPS URLs containing parameters, preferably one URL per line:
-
-```text
-https://authorized.example/products.php?id=1
-https://authorized.example/search.php?q=test
-https://authorized.example/view.php?page=home
-```
-
-Comments are not treated as URLs. Input may also contain whitespace-separated URLs; Doctorjack prepares a normalized URL-per-line file internally.
-
-## Usage
-
-```text
-Usage: doctorjack -f <url_file> [options]
-
-Required:
-  -f <file>        URL/input file
-
-Options:
-  -o <dir>         Base output directory; default: recon
-  -c <codes>       HTTP status codes accepted by httpx
-  -d <number>      Content-length delta threshold; default: 20
-  -t <seconds>     HTTP timeout; default: 10
-  -r <rate>        Optional httpx rate limit, such as 20
-  --no-intro       Skip the animated intro
-  -h               Show help
-```
-
-### Examples
-
-Standard run:
+## Basic usage
 
 ```bash
 doctorjack -f urls.txt
 ```
 
-Use a custom output directory and conservative rate:
+With optional settings:
 
 ```bash
-doctorjack -f urls.txt -o authorized_assessment -r 10 -t 15
+doctorjack -f urls.txt -o custom_recon -r 20 -t 15
 ```
 
-Disable the animated intro:
+Skip the animated introduction:
 
 ```bash
 doctorjack --no-intro -f urls.txt
 ```
 
-## Output directory
+## Input format
 
-A run creates a timestamped directory:
+Provide a text file containing HTTP or HTTPS URLs. One URL per line is recommended.
+
+Example:
 
 ```text
-recon/
-└── run_YYYY-MM-DD_HH-MM-SS/
-    ├── manual_review_priority.txt
-    ├── final_review.tsv
-    ├── parameter_type_analysis.tsv
-    ├── vulnerability_testing_plan.tsv
-    ├── vulnerability_testing_plan.html
-    ├── report_data.json
-    ├── metadata.txt
-    └── logs/
+https://example.test/product.php?id=10
+https://example.test/search.php?q=phone
+https://example.test/view.php?page=about
 ```
 
-Open the HTML dashboard locally:
+## Options
 
-```bash
-xdg-open recon/run_YYYY-MM-DD_HH-MM-SS/vulnerability_testing_plan.html
+| Option | Description |
+|---|---|
+| `-f <file>` | Required input URL file |
+| `-o <dir>` | Base output directory; default is `recon` |
+| `-c <codes>` | HTTP status codes accepted by httpx |
+| `-d <number>` | Content-length change threshold |
+| `-t <seconds>` | HTTP timeout |
+| `-r <rate>` | Optional httpx rate limit |
+| `--no-intro` | Skip animated introduction |
+| `-h` | Display help |
+
+## Main output files
+
+Each run creates a timestamped directory such as:
+
+```text
+recon/run_YYYY-MM-DD_HH-MM-SS/
 ```
 
-See [docs/OUTPUTS.md](docs/OUTPUTS.md) for the complete output reference.
+Important files include:
 
-## Understanding results
+| File | Purpose |
+|---|---|
+| `manual_review_priority.txt` | Main manual-review shortlist |
+| `final_review.tsv` | Categorized review results |
+| `dynamic_only.txt` | URLs with changed response metadata |
+| `non_reflected_sqli_candidates.txt` | SQLi candidates that were not reflected |
+| `parameter_type_analysis.tsv` | Parameter classification and priority scoring |
+| `vulnerability_testing_plan.tsv` | Structured testing plan |
+| `vulnerability_testing_plan.html` | Browser-readable report/dashboard |
+| `report_data.json` | Structured report data |
+| `metadata.txt` | Audit details, settings, and tool paths |
+| `logs/` | Tool and stage error logs |
 
-Doctorjack produces **review signals**, not confirmed findings:
+## Installed dependencies
 
-- `sqli_pattern` means the URL matched a configured GF SQLi pattern;
-- `reflected_candidate` means a parameter value appeared in the response;
-- `non_reflected_sqli_candidate` remains relevant because SQL injection does not require reflection;
-- `dynamic_behavior` means basic response metadata changed between inert probes;
-- priority scores are triage aids and must be validated manually.
+The installer configures and verifies:
 
-False positives and false negatives are possible. Authentication, caching, redirects, WAF behavior, unstable content, and rate limiting may affect results.
+- ProjectDiscovery `httpx`
+- `gf`
+- GF patterns including SQLi patterns
+- `Gxss`
+- `qsreplace`
+- `uro`
+- Go
+- Python 3
+- Git and basic build tools
 
-## Safe testing checklist
-
-- Obtain written authorization and a clearly defined target scope.
-- Use a conservative `-r` value and respect program limits.
-- Never put third-party targets in public issues or commits.
-- Review candidates manually before making a vulnerability claim.
-- Avoid destructive options, data extraction, or service disruption.
-- Preserve logs and report findings through the approved channel.
-
-## Updating
-
-```bash
-cd Doctorjack
-git pull
-chmod +x install.sh doctorjack uninstall.sh
-./install.sh
-```
-
-The installer refreshes the global `/usr/local/bin/doctorjack` command.
-
-## Uninstalling
-
-```bash
-./uninstall.sh
-```
-
-This removes only the Doctorjack global command. It intentionally leaves shared dependencies and generated assessment data untouched.
+The installer places Go tools first in `PATH` to avoid conflicts with unrelated packages also named `httpx`.
 
 ## Troubleshooting
 
-### Wrong `httpx` command
+### Git asks for a username or password while cloning
 
-Doctorjack requires the ProjectDiscovery Go binary:
+Use the exact public HTTPS URL:
 
 ```bash
-which httpx
+git clone https://github.com/pankajjangir811-blip/Doctorjack.git
 ```
 
-Expected path:
+Do not use an old URL with a different GitHub username.
 
-```text
-/home/YOUR_USER/go/bin/httpx
-```
+### Installation asks for a password
 
-Reload the shell profile when necessary:
+This is expected when the installer runs `sudo apt`. Enter the password of your local Linux user.
+
+### `doctorjack: command not found`
+
+Reload the correct shell profile:
 
 ```bash
 source ~/.bashrc
-hash -r
 ```
 
-### Missing `gf sqli` pattern
-
-Confirm that the pattern exists:
+or:
 
 ```bash
-ls ~/.gf/*sqli*
-echo 'https://example.com/item.php?id=1' | gf sqli
+source ~/.zshrc
 ```
 
-Re-run `./install.sh` if the pattern is unavailable.
+Then verify:
 
-### Empty reports
+```bash
+which doctorjack
+```
+
+### Wrong `httpx` is being used
 
 Check:
 
 ```bash
-cat recon/run_*/metadata.txt
-tail -n 100 recon/run_*/logs/*.err
+which httpx
+httpx -version
 ```
 
-Common causes include unreachable targets, authentication requirements, blocked probes, missing parameters, redirects, and overly restrictive status-code filters.
+The expected path is normally:
 
-## Repository files
+```text
+$HOME/go/bin/httpx
+```
 
-| Path | Description |
-|---|---|
-| `doctorjack` | Main v7.7 pipeline. |
-| `install.sh` | Dependency and global-command installer. |
-| `uninstall.sh` | Removes the global Doctorjack command. |
-| `examples/urls.example.txt` | Safe example input. |
-| `docs/OUTPUTS.md` | Output file reference. |
-| `SECURITY.md` | Private vulnerability reporting and authorized-use policy. |
-| `CONTRIBUTING.md` | Contribution requirements. |
-| `CHANGELOG.md` | Release history. |
+Run the installer again if another `/usr/bin/httpx` package is taking priority.
+
+### Review logs
+
+Every run stores logs in:
+
+```text
+recon/run_<timestamp>/logs/
+```
+
+## Safety and legal notice
+
+Doctorjack is intended for authorized assessment, training labs, and defensive review. It does not itself prove that a SQL injection vulnerability exists. Candidate results require careful manual validation.
+
+You are responsible for obtaining permission, defining scope, applying rate limits, protecting collected data, and complying with applicable law and program rules.
+
+## Reporting security issues
+
+Do not publish a vulnerability affecting Doctorjack users as a public GitHub issue. Follow the process in [SECURITY.md](SECURITY.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-Released under the [MIT License](LICENSE).
-
-The license permits use and modification of the software; it does not grant permission to test systems you do not own or have authorization to assess.
+Released under the MIT License. See [LICENSE](LICENSE).

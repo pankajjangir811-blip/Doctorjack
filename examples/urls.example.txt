@@ -1,4 +1,0 @@
-# Replace these examples with URLs from systems you own or are explicitly authorized to test.
-https://example.com/products.php?id=1
-https://example.com/search.php?q=sample
-https://example.com/view.php?page=home

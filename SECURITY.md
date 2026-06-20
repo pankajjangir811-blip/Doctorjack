@@ -1,23 +1,24 @@
 # Security Policy
 
-## Authorized use only
-
-Doctorjack is intended only for security testing of systems that you own or for which you have explicit written authorization. Users are responsible for defining scope, obtaining permission, respecting rate limits, and complying with applicable laws and program rules.
-
-## Reporting a vulnerability in Doctorjack
-
-Do not publish a working exploit against Doctorjack before maintainers have had a reasonable opportunity to investigate.
-
-Report privately by opening a GitHub Security Advisory for this repository. Include:
-
-- affected version and operating system;
-- reproducible steps;
-- expected and actual behavior;
-- security impact;
-- a suggested fix, when available.
-
-Do not include real target data, credentials, tokens, private URLs, or customer information.
-
 ## Supported version
 
-The latest published v7.x release receives security fixes. Older versions may not receive updates.
+Security fixes are currently considered for Doctorjack v7.7.
+
+## Reporting a security issue
+
+Please do not disclose a security issue publicly before it has been reviewed.
+
+Send a private report to the repository owner with:
+
+- A clear description of the issue
+- The affected file and function
+- Reproduction steps
+- Expected and actual behavior
+- Potential impact
+- A suggested fix, when available
+
+Do not include real target data, credentials, access tokens, private URLs, or information collected from systems you do not own.
+
+## Authorized use
+
+Security reports and testing must be limited to the Doctorjack code itself or systems for which you have explicit permission.
