@@ -29,7 +29,7 @@ The installer is intended for Debian-based Linux systems using `apt`, including 
 ## Quick installation
 
 ```bash
-git clone https://github.com/pankajjangir811/Doctorjack.git
+git clone https://github.com/pankajjangir811-blip/Doctorjack.git
 cd Doctorjack
 chmod +x install.sh doctorjack uninstall.sh
 ./install.sh
