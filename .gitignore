@@ -1,0 +1,19 @@
+# Doctorjack runtime output
+recon/
+custom_recon/
+run_*/
+*.log
+
+# Local test inputs and generated reports
+urls.txt
+targets.txt
+*.jsonl
+vulnerability_testing_plan.html
+report_data.json
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp

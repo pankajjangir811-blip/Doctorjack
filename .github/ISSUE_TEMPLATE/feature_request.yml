@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest a safe, authorized-use improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Use case
+      description: Describe the authorized defensive-testing or reporting need.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: This request does not add destructive exploitation, credential theft, persistence, stealth, or unauthorized access.
+          required: true
